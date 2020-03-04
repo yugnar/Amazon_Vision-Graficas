@@ -162,8 +162,8 @@ function createPyramid(gl, translation, rotationAxis){
     
         // Rotates a mat4 by the given angle
         // mat4 out the receiving matrix
-        // mat4 a the matrix to rotate
-        // Number rad the angle to rotate the matrix by
+        // mat4 as the matrix to rotate
+        // Number of rads - angle to rotate the matrix by
         // vec3 axis the axis to rotate around
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
     };
@@ -411,7 +411,7 @@ function createPenthPyramid(gl, translation, rotationAxis){
     return penthPyramid;
 }
 
-function createDodecahedron(gl, translation, rotationAxis){
+function createDodecahedron(gl, translation, rotationAxis, rotationAxis2){
     let vertexBuffer;
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -573,6 +573,7 @@ function createDodecahedron(gl, translation, rotationAxis){
         // Number rad the angle to rotate the matrix by
         // vec3 axis the axis to rotate around
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis2);
     };
     
     return dodecahedron;

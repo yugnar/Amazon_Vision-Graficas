@@ -18,7 +18,10 @@
 		        initGL(canvas);
 				initShader(gl);
 				// TO DO: create and draw the figures
-				run(gl, []);
+				var pyramid = createPenthPyramid(gl, [-2 , -0.3, -2], [0.1, 1.0, 0.2]);
+				var dodecahedron = createDodecahedron(gl, [0, 0, -2], [-0.4, 1.0, 0.1], [0.0, 1.0, 0,0]);
+				var octahedron = createOctahedron(gl, [2,0,-2], [0, 1, 0]);
+				run(gl, [pyramid, dodecahedron, octahedron]);
 			}
 	);
 
