@@ -33,6 +33,8 @@
 </style>
 
 <script type="text/javascript">
+
+    let control = 0;
   
 	$(document).ready(
 			function() {
@@ -40,10 +42,18 @@
 				var canvas = document.getElementById("webglcanvas");
 
                 createScene(canvas);
+                control = 1;
 
-		        run();
 			}
-	);
+    );
+    
+    function gameStart(){
+        if(control == 1){
+            $(".hidden").css("display", "inline");
+            $(".unhidden").css("display", "none");
+            run();
+        }
+    }
 
 </script>
 
@@ -107,25 +117,79 @@
     padding-bottom: 15px;
 }
 
+#StartScreen{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+}
+
+img{
+    max-width:100%;
+    max-height:100%;
+    display:block;
+    margin:auto;
+}
+
+.hidden{
+    display: none;
+}
+
+.unhidden{
+    display: inline;
+}
+
+#StartButton{
+    position: absolute;
+    right: 350px; 
+    bottom: 200px; 
+    width:200px; 
+    height:50px;
+    background-color: blue;
+    opacity: 0.7;
+    border: 1px solid black;
+}
+
+#StartButton button{
+    position:relative;
+    top:20%; 
+    left:13%;
+    background-color: purple;
+    border: none;
+    color: white;
+    padding: 5px 50px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
 </style>
 
 </head>
 <body>
 
 <div id="container">
+
+    <div id="StartScreen" class="unhidden">
+        <img src="../images/StartScreen.png">
+    </div>
+
+    <div id="StartButton" class="unhidden">
+        <button onclick="gameStart();">BEGIN</button>
+    </div>
     
     <canvas id="webglcanvas"></canvas>
 
-        <div id="ScoreBox" class="score">
+        <div id="ScoreBox" class="score hidden">
             <p>Score: 0</p>
         </div>
-        <div id="TimerBox" class="timer">
+        <div id="TimerBox" class="timer hidden">
             <p>Time Left: 60</p>
         </div>
-        <div id="RestartBox" class="restart">
+        <div id="RestartBox" class="restart hidden">
             <button onclick="history.go(0)" VALUE="Refresh">Restart Game</button>
         </div>
-        <div id="IDInfo" class="info">
+        <div id="IDInfo" class="info hidden">
             <p>Rafael Rojas Obregon A01339605</p>
         </div>
 </div>

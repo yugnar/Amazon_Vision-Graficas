@@ -1,14 +1,18 @@
+/*----------------------------------------------------------
+ * Actividad 4: Zerg-Rush Game
+ * Fecha: 31/03/2020
+ * Autor: A01339605 Rafael Rojas Obregón
+ *----------------------------------------------------------*/
+
 let container;
 let camera, scene, raycaster, renderer;
 let globalScore = 0;
-let globalTime = 60;
+let globalTime = 0;
+let gameStarted = false;
 let waifuList = [];
-let scoreControl = [0,0,0,0,0,0,0,0,0,0,0,0]
 
 let mouse = new THREE.Vector2(), INTERSECTED, CLICKED;
 let radius = 100, theta = 0;
-
-let floorUrl = "../images/checker_large.gif";
 
 function createScene(canvas) 
 {
@@ -26,39 +30,23 @@ function createScene(canvas)
     light.position.set( 1, 1, 1 );
     scene.add( light );
 
-
-    //OLD GEOMETRIES FOR CUBES!!!!
-    // let geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
-    
-    // for ( let i = 0; i < 10; i ++ ) 
-    // {
-    //     let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-        
-    //     object.name = 'Cube' + i;
-    //     object.position.set(Math.random() * 200 - 100, Math.random() * 200 - 100, -200);
-        
-    //     scene.add( object );
-    // }
-
+    //Sets difficulty (speed) of the waifu generation and calls for waifuSpawn()
     let rate = 0;
     waifuSpawn(rate, false);
-    
-    // ENDLINE*************---------------------------
 
     //Update Timer
 
     updateTimer();
     
     raycaster = new THREE.Raycaster();
-        
-    // document.addEventListener('mousemove', onDocumentMouseMove);
-    document.addEventListener('mousedown', onDocumentMouseDown);
     
+    //Add event listeners
+    document.addEventListener('mousedown', onDocumentMouseDown);    
     window.addEventListener( 'resize', onWindowResize);
 
-    
 }
 
+//Updates the timer in the GUI
 function updateTimer(){
     setTimeout(
         function() {
@@ -70,17 +58,18 @@ function updateTimer(){
     }, 1000);
 }
 
+//Spawns a waifu OBJ in a random (x,y) coordinate at random time intervals starting at 1-1.5s per waifu -> getting faster as time progresses until maxRate is reached (maxDifficulty)
 function waifuSpawn(rate, maxRate){
     let objModelUrl = {obj:'../models/waifu.obj', map:'../models/pink.jpg'};
-    let interval = Math.floor(Math.random() * (3500 - 3000) + 3000);
+    let interval = Math.floor(Math.random() * (1500 - 1000) + 1000);
     setTimeout(
         function() {
-            if(waifuList.length < 1 && globalTime > 0){
+            if(waifuList.length < 12 && globalTime > 0){
                 loadObj(objModelUrl, "Waifu1");
                 if(!maxRate){
                     rate += -15;
                 }
-                if(interval+rate < 400){
+                if(interval+rate < 300){
                     maxRate = true;
                 }
             }
@@ -129,6 +118,7 @@ async function loadObj(objModelUrl, objectName)
         object.position.x = Math.random() * (2.5 - (-2.5)) - 2.5;
         object.position.y = Math.random() * (2.5 - (-1.5)) - 1.5;
         object.name = objectName;
+        object.covid19 = true;
         waifuList.push(object);
         scene.add(object);
     }
@@ -143,11 +133,6 @@ function onWindowResize()
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
-
-// function onDocumentMouseMove( event ) 
-// {
-
-// }
 
 function onDocumentMouseDown(event)
 {
@@ -164,7 +149,9 @@ function onDocumentMouseDown(event)
     {
         CLICKED = intersects[ intersects.length - 1 ].object;
         if(CLICKED.material.emissive.getHex() != 65280 && globalTime > 0){
+            //Score a point and marks waifu as green
             CLICKED.material.emissive.setHex( 0x00ff00 );
+            CLICKED.parent.covid19 = false;
             globalScore += 1;
             updateScore();
         }
@@ -173,6 +160,11 @@ function onDocumentMouseDown(event)
 //
 function run() 
 {
+    if(!gameStarted){
+        gameStarted = !gameStarted;
+        globalTime = 60;
+        updateTimer();
+    }
     requestAnimationFrame( run );
     render();
     if(globalTime>0){
@@ -180,38 +172,36 @@ function run()
     }   
 }
 
+//moves a waifu, checks for penalty on certain (position.z) reached, removes waifus from scene.
 function waifuMove(){
     for(let i=0; i<waifuList.length; i++){
         let myWaifu = waifuList[i];
-        if (waifuList[i].position.z < -3) {
+        if (waifuList[i].position.z < -2.5) {
             waifuList[i].position.z += 0.03;
         }
-        else if (waifuList[i].position.z < -2.97){
-            debugCounter = 0;
+        else if (waifuList[i].position.z < -2.47){
             waifuList[i].traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
-                    console.log(child.material.emissive.getHex());
-                    if(child.material.emissive.getHex() != 65280 && scoreControl[i] == 0){
-                        child.material.emissive.setHex( 0xff0000 );
+                    if(waifuList[i].covid19){
+                        waifuList[i].covid19 = false;
                         globalScore += -1;
                         updateScore();
-                        scoreControl[i] = 1;
                     }
                 }
             });
-            waifuList[i].position.z += 0.0285;
+            waifuList[i].position.z += 0.03;
         }
         else if (waifuList[i].position.z < 0){
-            waifuList[i].position.z += 0.0285;
+            waifuList[i].position.z += 0.03;
         }
         else{
-            scoreControl[i] = 0;
             scene.remove(waifuList[i]);
             waifuList.splice(i,1);
         }
     }
 }
 
+//Updates score on HTML
 function updateScore(){
     document.getElementById("ScoreBox").innerHTML = "<p>Score: " + globalScore + "</p>";
 }
@@ -220,5 +210,3 @@ function render()
 {
     renderer.render( scene, camera );
 }
-
-//65280
