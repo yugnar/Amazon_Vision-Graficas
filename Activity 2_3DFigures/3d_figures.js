@@ -73,104 +73,6 @@ function initGL(canvas)
     mat4.translate(projectionMatrix, projectionMatrix, [0, 0, -5]);
 }
 
-// Create the vertex, color and index data for a multi-colored cube
-
-function createPyramid(gl, translation, rotationAxis){
-
-    let vertexBuffer;
-    vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-
-    let verts = [
-        //Front Face
-        -0.5, 0.0, 0.5,
-        0.5, 0.0, 0.5,
-        0.0, 1.0, 0.0,
-
-        //Back Face
-        -0.5, 0.0, -0.5,
-        0.5, 0.0, -0.5,
-        0.0, 1.0, 0.0,
-
-        //Left Face
-        -0.5, 0.0, -0.5,
-        -0.5, 0.0, 0.5,
-        0.0, 1.0, 0.0,
-
-        //Right Face
-        0.5, 0.0, -0.5,
-        0.5, 0.0, 0.5,
-        0.0, 1.0, 0.0,
-
-        //Bottom Face
-        -0.5, 0.0, 0.5,
-        0.5, 0.0, 0.5,
-        -0.5, 0.0, -0.5,
-        0.5, 0.0, -0.5
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
-
-    let colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = [
-        [1.0, 0.0, 0.0, 1.0], // Front face
-        [0.0, 1.0, 0.0, 1.0], // Back face
-        [1.0, 1.0, 0.0, 1.0], // Left face
-        [1.0, 0.0, 1.0, 1.0], // Right face
-        [0.0, 1.0, 1.0, 1.0],  
-        [0.0, 1.0, 1.0, 1.0]// Bottom face
-    ]
-
-    let vertexColors = [];
-
-    faceColors.forEach(color =>{
-        for (let j=0; j < 3; j++)
-            vertexColors.push(...color);
-    });
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexColors), gl.STATIC_DRAW);
-
-    let pyramidIndexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidIndexBuffer);
-
-    let pyramidIndices = [
-        0, 1, 2,      // Front face
-        3, 4, 5,      // Back face
-        6, 7, 8,      // Left face
-        9, 10, 11,    // Right face
-        12, 13, 14,   13, 14, 15 // Bottom face
-        
-    ]
-
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(pyramidIndices), gl.STATIC_DRAW);
-
-    let pyramid = {
-        buffer:vertexBuffer, colorBuffer:colorBuffer, indices:pyramidIndexBuffer,
-        vertSize:3, nVerts: 16, colorSize:4, nColors: 16, nIndices:18,
-        primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
-
-    mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
-
-    pyramid.update = function()
-    {
-        let now = Date.now();
-        let deltat = now - this.currentTime;
-        this.currentTime = now;
-        let fract = deltat / duration;
-        let angle = Math.PI * 2 * fract;
-    
-        // Rotates a mat4 by the given angle
-        // mat4 out the receiving matrix
-        // mat4 as the matrix to rotate
-        // Number of rads - angle to rotate the matrix by
-        // vec3 axis the axis to rotate around
-        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
-    };
-    
-    return pyramid;
-}
-
 function createOctahedron(gl, translation, rotationAxis){
 
     let vertexBuffer;
@@ -224,15 +126,14 @@ function createOctahedron(gl, translation, rotationAxis){
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     let faceColors = [
-        [1.0, 0.0, 0.0, 1.0], // Front Down face
-        [0.0, 1.0, 0.0, 1.0], // Back Down face
-        [1.0, 1.0, 0.0, 1.0], // Left Down face
-        [1.0, 0.0, 1.0, 1.0], // Right Down face
-        [1.0, 1.0, 0.0, 1.0], // Front Down face
-        [0.0, 1.0, 1.0, 1.0], // Back Down face
-        [1.0, 0.0, 1.0, 1.0], // Left Down face
-        [1.0, 0.0, 0.0, 1.0], // Right Down face
-        
+        [1.0, 0.0, 0.0, 1.0],
+        [0.0, 1.0, 0.0, 1.0],
+        [1.0, 1.0, 0.0, 1.0],
+        [1.0, 0.0, 1.0, 1.0],
+        [1.0, 1.0, 0.0, 1.0],
+        [0.0, 1.0, 1.0, 1.0],
+        [1.0, 0.0, 1.0, 1.0],
+        [1.0, 0.0, 0.0, 1.0]
     ]
 
     let vertexColors = [];
@@ -291,9 +192,6 @@ function createOctahedron(gl, translation, rotationAxis){
                     dir = 0;
                 }
             }
-
-
-
             // Rotates a mat4 by the given angle
             // mat4 out the receiving matrix
             // mat4 a the matrix to rotate
@@ -304,7 +202,7 @@ function createOctahedron(gl, translation, rotationAxis){
     
     return octahedron;
 }
-function createPenthPyramid(gl, translation, rotationAxis){
+function createPyramid(gl, translation, rotationAxis){
     
     let vertexBuffer;
     vertexBuffer = gl.createBuffer();
@@ -332,7 +230,6 @@ function createPenthPyramid(gl, translation, rotationAxis){
             x1 = 0.5 * Math.cos(angle * Math.PI / 180);
             z1 = 0.5 * Math.sin(angle * Math.PI / 180);
             verts.push(x1, 0.0, z1);
-           
         } 
     }
     
@@ -380,7 +277,6 @@ function createPenthPyramid(gl, translation, rotationAxis){
         17, 18, 19,
         20, 21, 22,
         23, 24, 25       // Back face
-        
     ]
 
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(penthPyramidIndices), gl.STATIC_DRAW);
